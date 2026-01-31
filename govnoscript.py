@@ -41,7 +41,6 @@ def interpret(lines: list, script_vars:dict=None):
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
                 gui.moveTo(int(line0[1]), int(line0[2]), float(line0[3].replace(",", ".")))
-                gui.click()
             case "click":
                 if len(line0) != 2:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
