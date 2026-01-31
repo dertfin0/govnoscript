@@ -1,6 +1,3 @@
-import time
-
-
 def run(filename: str):
     """
     Read .govno file and run it
@@ -37,7 +34,8 @@ def interpret(lines: list):
                 if len(line0) != 4:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
-                gui.moveTo(int(line0[1]), int(line0[2]), float(line0[3]))
+                gui.moveTo(int(line0[1]), int(line0[2]), float(line0[3].replace(",", ".")))
+                gui.click()
             case "click":
                 if len(line0) != 2:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
@@ -61,14 +59,14 @@ def interpret(lines: list):
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
                 text = " ".join(line0[2:])
-                kb.write(text, float(line0[1]))
+                kb.write(text, float(line0[1].replace(",", ".")))
             case "write_by_keyboard":
                 if len(line0) < 3:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
                 text = " ".join(line0[2:]).lower()
                 for char in text:
-                    time.sleep(float(line0[1]))
+                    time.sleep(float(line0[1].replace(",", ".")))
                     kb.press(char)
                     time.sleep(0.05)
                     kb.release(char)
