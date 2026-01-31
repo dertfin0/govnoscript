@@ -18,5 +18,9 @@ WRITE 0.5 Hello World!
 # Моментально напечатать Hello World!
 WRITE 0 Hello World!
 
+# Нажать и отпустить ENTER
+PRESS enter
+RELEASE enter
+
 # Печатать Hello World! с иммитацией нажатия и отпускания клавиш
 WRITE_BY_KEYBOARD 0.5 Hello World!

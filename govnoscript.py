@@ -1,3 +1,6 @@
+import time
+
+
 def run(filename: str):
     """
     Read .govno file and run it
@@ -52,5 +55,9 @@ def interpret(lines: list):
                 kb.press(char)
                 time.sleep(0.05)
                 kb.release(char)
+        elif line0[0] == "PRESS" and len(line0) == 2:
+            kb.press(line0[1])
+        elif line0[0] == "RELEASE" and len(line0) == 2:
+            kb.release(line0[1])
         else:
             print(f"Unknown command [{line}]")
