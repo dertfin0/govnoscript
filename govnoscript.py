@@ -1,7 +1,8 @@
-def run(filename: str):
+def run(filename: str, script_vars:dict=None):
     """
     Read .govno file and run it
     :param filename: .govno-file
+    :param script_vars: .govno-file variables
     :raise IOError: Got not .govno-file
     """
     if not filename.endswith(".govno"):
@@ -10,18 +11,23 @@ def run(filename: str):
     with open(filename, "r") as file:
         lines = file.read().split("\n")
 
-    interpret(lines)
+    interpret(lines, script_vars)
 
-def interpret(lines: list):
+def interpret(lines: list, script_vars:dict=None):
     """
     Run interpretation of govno-lines
     :param lines: Lines of govno-script
+    :param script_vars: .govno-file variables
     """
     import pyautogui as gui
     import keyboard as kb
     import time
 
     for line in lines:
+        if script_vars is not None:
+            for var in script_vars.keys():
+                line = line.replace(f"%{var}%", script_vars[var])
+
         line0 = line.split()
 
         if line in ["", " ", "\n"]:
@@ -29,7 +35,7 @@ def interpret(lines: list):
         if line0[0].startswith("#"):
             continue
 
-        match line[0].lower():
+        match line0[0].lower():
             case "moveto":
                 if len(line0) != 4:
                     print(f"Syntax error in line [{lines.index(line)+1}]")

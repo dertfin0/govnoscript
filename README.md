@@ -32,13 +32,18 @@ pip install govnoscript
 
 `# Some text` - комментарий. Пишется строго на отдельной строке.
 
+`%var%` - переменная `var`. Задается при запуске
+
 ## Запуск скрипта
 Есть два способа запустить скрипт - по названию файла или списком из команд:
 
 ```python
 import govnoscript
 
-govnoscript.run("script.govno") # Запускает скрипт, написанный в файле
+govnoscript.run("script.govno", script_vars={
+    "var" : "Значение переменной var"
+}) # Запускает скрипт, написанный в файле
+# script_vars - необязательный параметр
 govnoscript.interpret([
     "WAIT 5", # Ждет 5 секунд после запуска
     "WRITE 0 Hello world!" # Моментально напечатает Hello World!
