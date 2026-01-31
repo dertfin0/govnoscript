@@ -42,6 +42,9 @@ def interpret(lines: list):
             time.sleep(float(line0[1]))
         elif line0[0] == "WRITE" and len(line0) >= 3:
             text = " ".join(line0[2:])
+            kb.write(text, float(line0[1]))
+        elif line0[0] == "WRITE_BY_KEYBOARD" and len(line0) >= 3:
+            text = " ".join(line0[2:]).lower()
             for char in text:
                 time.sleep(float(line0[1]))
                 kb.press(char)
