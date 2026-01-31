@@ -24,6 +24,8 @@ def interpret(lines: list):
     for line in lines:
         line0 = line.split()
 
+        if line in ["", " ", "\n"]:
+            continue
         if line0[0].startswith("#"):
             continue
 
