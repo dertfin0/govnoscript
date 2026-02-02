@@ -138,6 +138,17 @@ def interpret(lines: list, script_vars: dict = None):
                 now = datetime.now().timestamp()
                 ms = int((now - execution_start) * 1000)
                 print(f"{ms} ms")
+            case "hotkey":
+                if len(line0) < 2:
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
+                    continue
+                keys = line0[1].split("+")
+                for key in keys:
+                    kb.press(key)
+                    time.sleep(0.01)
+                for key in keys[::-1]:
+                    kb.release(key)
+                    time.sleep(0.01)
             case _:
                 variable = _parse_variable(line)
                 if variable is None:
