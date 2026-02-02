@@ -48,6 +48,9 @@ def interpret(lines: list, script_vars:dict=None):
     import pyautogui as gui
     import keyboard as kb
     import time
+    from datetime import datetime
+
+    execution_start = datetime.now().timestamp()
 
     for line in lines:
         if script_vars is not None:
@@ -111,5 +114,9 @@ def interpret(lines: list, script_vars:dict=None):
                     print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 kb.release(line0[1])
+            case "time":
+                now = datetime.now().timestamp()
+                ms = int((now - execution_start) * 1000)
+                print(f"{ms} ms")
             case _:
                 print(f"Unknown command [{line}]")
