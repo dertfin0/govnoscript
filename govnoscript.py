@@ -120,7 +120,7 @@ def interpret(lines: list, script_vars: dict = None):
                     continue
                 text = " ".join(line0[2:]).lower()
                 for char in text:
-                    time.sleep(_parse_number(char))
+                    time.sleep(_parse_number(line0[1]))
                     kb.press(char)
                     time.sleep(0.05)
                     kb.release(char)
