@@ -139,7 +139,7 @@ def interpret(lines: list, script_vars: dict = None):
                 ms = int((now - execution_start) * 1000)
                 print(f"{ms} ms")
             case "hotkey":
-                if len(line0) < 2:
+                if len(line0) != 2:
                     print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 keys = line0[1].split("+")
@@ -149,6 +149,12 @@ def interpret(lines: list, script_vars: dict = None):
                 for key in keys[::-1]:
                     kb.release(key)
                     time.sleep(0.01)
+            case "tap":
+                if len(line0) != 2:
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
+                kb.press(line0[1])
+                time.sleep(0.03)
+                kb.release(line0[1])
             case _:
                 variable = _parse_variable(line)
                 if variable is None:
