@@ -9,7 +9,7 @@ def _parse_number(string: str) -> float:
     if "~" in string:
         number = string.split("~")
         if len(number) != 2:
-            print(f"Can't parse number [{string}]")
+            print(f"Can't parse number [{string}]. Returning 0")
             return 0
         else:
             return uniform(
@@ -20,11 +20,27 @@ def _parse_number(string: str) -> float:
         try:
             number = float(string)
         except ValueError:
-            print(f"Can't parse number [{string}]")
+            print(f"Can't parse number [{string}]. Returning 0")
             number = 0
         return number
 
-def run(filename: str, script_vars:dict=None):
+
+def _parse_variable(line: str) -> list | None:
+    """
+    Try to parse variable from line
+    :param line: Line of code
+    :return: List [key, value] or none, if not parsed
+    """
+    splitted = line.split()
+    if len(splitted) < 3 or splitted[1] != "=":
+        return None
+
+    name = splitted[0]
+    value = " ".join(splitted[2:])
+    return [name, value]
+
+
+def run(filename: str, script_vars: dict = None):
     """
     Read .govno file and run it
     :param filename: .govno-file
@@ -39,7 +55,8 @@ def run(filename: str, script_vars:dict=None):
 
     interpret(lines, script_vars)
 
-def interpret(lines: list, script_vars:dict=None):
+
+def interpret(lines: list, script_vars: dict = None):
     """
     Run interpretation of govno-lines
     :param lines: Lines of govno-script
@@ -50,12 +67,15 @@ def interpret(lines: list, script_vars:dict=None):
     import time
     from datetime import datetime
 
+    if script_vars is None:
+        script_vars = {}
+
     execution_start = datetime.now().timestamp()
 
     for line in lines:
-        if script_vars is not None:
-            for var in script_vars.keys():
-                line = line.replace(f"%{var}%", script_vars[var])
+
+        for var in script_vars.keys():
+            line = line.replace(f"%{var}%", script_vars[var])
 
         line0 = line.split()
 
@@ -67,12 +87,12 @@ def interpret(lines: list, script_vars:dict=None):
         match line0[0].lower():
             case "moveto":
                 if len(line0) != 4:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 gui.moveTo(int(line0[1]), int(line0[2]), _parse_number(line0[3]))
             case "click":
                 if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 match line0[1].lower():
                     case "left":
@@ -85,18 +105,18 @@ def interpret(lines: list, script_vars:dict=None):
                         print(f"Unknown mouse button [{line0[1]}]")
             case "wait":
                 if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 time.sleep(float(line0[1]))
             case "write":
                 if len(line0) < 3:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 text = " ".join(line0[2:])
                 kb.write(text, _parse_number(line0[1]))
             case "write_by_keyboard":
                 if len(line0) < 3:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 text = " ".join(line0[2:]).lower()
                 for char in text:
@@ -106,7 +126,7 @@ def interpret(lines: list, script_vars:dict=None):
                     kb.release(char)
             case "press":
                 if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line)+1}]")
+                    print(f"Syntax error in line [{lines.index(line) + 1}]")
                     continue
                 kb.press(line0[1])
             case "release":
@@ -119,4 +139,8 @@ def interpret(lines: list, script_vars:dict=None):
                 ms = int((now - execution_start) * 1000)
                 print(f"{ms} ms")
             case _:
-                print(f"Unknown command [{line}]")
+                variable = _parse_variable(line)
+                if variable is None:
+                    print(f"Unknown command [{line}]")
+                else:
+                    script_vars[variable[0]] = variable[1]
