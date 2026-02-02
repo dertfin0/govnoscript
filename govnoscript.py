@@ -1,3 +1,29 @@
+def _parse_number(string: str) -> float:
+    """
+    Parses number from string
+    :param string: Number or number with uncertainty
+    :return:
+    """
+    from random import uniform
+    string = string.replace(',', '.')
+    if "~" in string:
+        number = string.split("~")
+        if len(number) != 2:
+            print(f"Can't parse number [{string}]")
+            return 0
+        else:
+            return uniform(
+                float(number[0]) - float(number[1]),
+                float(number[0]) + float(number[1])
+            )
+    else:
+        try:
+            number = float(string)
+        except ValueError:
+            print(f"Can't parse number [{string}]")
+            number = 0
+        return number
+
 def run(filename: str, script_vars:dict=None):
     """
     Read .govno file and run it
@@ -40,7 +66,7 @@ def interpret(lines: list, script_vars:dict=None):
                 if len(line0) != 4:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
-                gui.moveTo(int(line0[1]), int(line0[2]), float(line0[3].replace(",", ".")))
+                gui.moveTo(int(line0[1]), int(line0[2]), _parse_number(line0[3]))
             case "click":
                 if len(line0) != 2:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
@@ -64,14 +90,14 @@ def interpret(lines: list, script_vars:dict=None):
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
                 text = " ".join(line0[2:])
-                kb.write(text, float(line0[1].replace(",", ".")))
+                kb.write(text, _parse_number(line0[1]))
             case "write_by_keyboard":
                 if len(line0) < 3:
                     print(f"Syntax error in line [{lines.index(line)+1}]")
                     continue
                 text = " ".join(line0[2:]).lower()
                 for char in text:
-                    time.sleep(float(line0[1].replace(",", ".")))
+                    time.sleep(_parse_number(char))
                     kb.press(char)
                     time.sleep(0.05)
                     kb.release(char)
