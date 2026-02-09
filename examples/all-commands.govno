@@ -12,8 +12,12 @@ CLICK LEFT
 CLICK MIDDLE
 CLICK RIGHT
 
-# Печатать Hello World! с паузами 0.5 секунд между буквами
-WRITE 0.5 Hello World!
+# Задаем переменную write_delay
+# Здесь указывается число с погрешностью. Подробнее в README.md
+write_delay = 0.5~0.25
+
+# Печатать Hello World! с паузами из переменной write_delay между буквами
+WRITE %write_delay% Hello World!
 
 # Моментально напечатать Hello World!
 WRITE 0 Hello World!
@@ -22,5 +26,14 @@ WRITE 0 Hello World!
 PRESS enter
 RELEASE enter
 
-# Печатать Hello World! с иммитацией нажатия и отпускания клавиш
+# Сделать PRESS и RELEASE в одной команде
+TAP enter
+
+# Печатать Hello World! с имитацией нажатия и отпускания клавиш
 WRITE_BY_KEYBOARD 0.5 Hello World!
+
+# Прожать сочетание клавиш Alt и Tab
+HOTKEY alt+tab
+
+# Узнать, сколько миллисекунд было потрачено на выполнение скрипта
+TIME
