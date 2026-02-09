@@ -82,8 +82,14 @@ def _wait(line0):
 def _write(line0):
     if len(line0) < 3:
         raise ValueError
+
     text = " ".join(line0[2:])
-    kb.write(text, _parse_number(line0[1]))
+    for i in range(len(text)):
+        kb.write(text[i])
+
+        delay = _parse_number(line0[1])
+        if delay != 0 and i != len(text)-1:
+            time.sleep(delay)
 
 def _write_by_keyboard(line0):
     if len(line0) < 3:
