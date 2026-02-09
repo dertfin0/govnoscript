@@ -1,3 +1,10 @@
+import pyautogui as gui
+import keyboard as kb
+import time
+from datetime import datetime
+
+# Internal
+
 def _parse_number(string: str) -> float:
     """
     Parses number from string
@@ -40,6 +47,118 @@ def _parse_variable(line: str) -> list | None:
     return [name, value]
 
 
+# Commands
+
+def _moveto(line0):
+    if len(line0) != 4:
+        raise ValueError
+    gui.moveTo(int(line0[1]), int(line0[2]), _parse_number(line0[3]))
+
+def _click(line0):
+    if len(line0) != 2:
+        raise ValueError
+    match line0[1].lower():
+        case "left":
+            gui.leftClick()
+        case "right":
+            gui.rightClick()
+        case "middle":
+            gui.middleClick()
+        case _:
+            print(f"Unknown mouse button [{line0[1]}]")
+
+def _wait(line0):
+    if len(line0) != 2:
+        raise ValueError
+    time.sleep(float(line0[1]))
+
+def _write(line0):
+    if len(line0) < 3:
+        raise ValueError
+    text = " ".join(line0[2:])
+    kb.write(text, _parse_number(line0[1]))
+
+def _write_by_keyboard(line0):
+    if len(line0) < 3:
+        raise ValueError
+    text = " ".join(line0[2:]).lower()
+    for char in text:
+        time.sleep(_parse_number(line0[1]))
+        kb.press(char)
+        time.sleep(0.05)
+        kb.release(char)
+
+def _press(line0):
+    if len(line0) != 2:
+        raise ValueError
+    kb.press(line0[1])
+
+def _release(line0):
+    if len(line0) != 2:
+        raise ValueError
+    kb.release(line0[1])
+
+def _time(execution_start):
+    now = datetime.now().timestamp()
+    ms = int((now - execution_start) * 1000)
+    print(f"{ms} ms")
+
+def _hotkey(line0):
+    if len(line0) != 2:
+        raise ValueError
+    keys = line0[1].split("+")
+    for key in keys:
+        kb.press(key)
+        time.sleep(0.01)
+    for key in keys[::-1]:
+        kb.release(key)
+        time.sleep(0.01)
+
+def _tap(line0):
+    if len(line0) != 2:
+        raise ValueError
+    kb.press(line0[1])
+    time.sleep(0.03)
+    kb.release(line0[1])
+
+def _parse_line(line, execution_start, script_vars):
+    line0 = line.split()
+
+    if line in ["", " ", "\n"]:
+        return
+    if line0[0].startswith("#"):
+        return
+
+    match line0[0].lower():
+        case "moveto":
+            _moveto(line0)
+        case "click":
+            _click(line0)
+        case "wait":
+            _wait(line0)
+        case "write":
+            _write(line0)
+        case "write_by_keyboard":
+            _write_by_keyboard(line0)
+        case "press":
+            _press(line0)
+        case "release":
+            _release(line0)
+        case "hotkey":
+            _hotkey(line0)
+        case "tap":
+            _tap(line0)
+        case "time":
+            _time(execution_start)
+        case _:
+            variable = _parse_variable(line)
+            if variable is None:
+                print(f"Unknown command [{line}]")
+            else:
+                script_vars[variable[0]] = variable[1]
+
+# Main methods
+
 def run(filename: str, script_vars: dict = None):
     """
     Read .govno file and run it
@@ -62,10 +181,6 @@ def interpret(lines: list, script_vars: dict = None):
     :param lines: Lines of govno-script
     :param script_vars: .govno-file variables
     """
-    import pyautogui as gui
-    import keyboard as kb
-    import time
-    from datetime import datetime
 
     if script_vars is None:
         script_vars = {}
@@ -73,91 +188,10 @@ def interpret(lines: list, script_vars: dict = None):
     execution_start = datetime.now().timestamp()
 
     for line in lines:
-
         for var in script_vars.keys():
             line = line.replace(f"%{var}%", script_vars[var])
 
-        line0 = line.split()
-
-        if line in ["", " ", "\n"]:
-            continue
-        if line0[0].startswith("#"):
-            continue
-
-        match line0[0].lower():
-            case "moveto":
-                if len(line0) != 4:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                gui.moveTo(int(line0[1]), int(line0[2]), _parse_number(line0[3]))
-            case "click":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                match line0[1].lower():
-                    case "left":
-                        gui.leftClick()
-                    case "right":
-                        gui.rightClick()
-                    case "middle":
-                        gui.middleClick()
-                    case _:
-                        print(f"Unknown mouse button [{line0[1]}]")
-            case "wait":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                time.sleep(float(line0[1]))
-            case "write":
-                if len(line0) < 3:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                text = " ".join(line0[2:])
-                kb.write(text, _parse_number(line0[1]))
-            case "write_by_keyboard":
-                if len(line0) < 3:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                text = " ".join(line0[2:]).lower()
-                for char in text:
-                    time.sleep(_parse_number(line0[1]))
-                    kb.press(char)
-                    time.sleep(0.05)
-                    kb.release(char)
-            case "press":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                kb.press(line0[1])
-            case "release":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                kb.release(line0[1])
-            case "time":
-                now = datetime.now().timestamp()
-                ms = int((now - execution_start) * 1000)
-                print(f"{ms} ms")
-            case "hotkey":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                    continue
-                keys = line0[1].split("+")
-                for key in keys:
-                    kb.press(key)
-                    time.sleep(0.01)
-                for key in keys[::-1]:
-                    kb.release(key)
-                    time.sleep(0.01)
-            case "tap":
-                if len(line0) != 2:
-                    print(f"Syntax error in line [{lines.index(line) + 1}]")
-                kb.press(line0[1])
-                time.sleep(0.03)
-                kb.release(line0[1])
-            case _:
-                variable = _parse_variable(line)
-                if variable is None:
-                    print(f"Unknown command [{line}]")
-                else:
-                    script_vars[variable[0]] = variable[1]
+        try:
+            _parse_line(line, execution_start, script_vars)
+        except ValueError:
+            print(f"Syntax error in line [{lines.index(line) + 1}]")
