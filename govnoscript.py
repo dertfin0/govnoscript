@@ -50,13 +50,20 @@ def _parse_variable(line: str) -> list | None:
 # Commands
 
 def _moveto(line0):
-    if len(line0) != 4:
+    if len(line0) == 3:
+        gui.moveTo(int(_parse_number(line0[1])), int(_parse_number(line0[2])))
+    elif len(line0) == 4:
+        gui.moveTo(int(_parse_number(line0[1])), int(_parse_number(line0[2])), _parse_number(line0[3]))
+    else:
         raise ValueError
-    gui.moveTo(int(_parse_number(line0[1])), int(_parse_number(line0[2])), _parse_number(line0[3]))
 
 def _click(line0):
+    if len(line0) == 1:
+        gui.leftClick()
+        return
     if len(line0) != 2:
         raise ValueError
+
     match line0[1].lower():
         case "left":
             gui.leftClick()
